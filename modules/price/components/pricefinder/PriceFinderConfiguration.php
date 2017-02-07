@@ -12,14 +12,28 @@
  * @author alexr
  */
 class PriceFinderConfiguration {
-	
-	public static function configuration($alias = null, $class = null, $access = null)
-	{
-		return [
-			'name'=>$alias,
-			'class'=>$class,
-			'access'=>$access,
-		];
+	private $alias;
+	private $class;
+	private $access;
 
-	}
+	public function __construct($alias, $class, $access) {
+	    $this->alias = $alias;
+	    $this->class = $class;
+	    $this->access = $access;
+    }
+
+    public function alias()
+    {
+        return $this->alias;
+    }
+
+    public function className()
+    {
+        return $this->class;
+    }
+
+    public function access()
+    {
+        return $this->access;
+    }
 }
