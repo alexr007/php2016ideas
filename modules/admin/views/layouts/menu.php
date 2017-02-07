@@ -1,0 +1,19 @@
+	<div id="mainmenu">
+	<?php 
+		$user = new RuntimeUser();
+		$visible=$user->isAdmin();
+		$module="/admin";
+		
+		$this->widget('zii.widgets.CMenu',[
+//			'activeCssClass'=>'active',
+//			'activateParents'=>true,
+			'items'=>[
+				['label'=>'FileControl','url'=>[$module.'/files/index'], 	'visible'=>$visible],
+				['label'=>'WWW Links',	'url'=>[$module.'/link/index'], 	'visible'=>$visible],
+				['label'=>'Parameters',	'url'=>[$module.'/parameter'], 		'visible'=>$visible],
+				['label'=>'Login History',	'url'=>[$module.'/loginAttempt'],'visible'=>$visible],
+				['label'=>'Search History',	'url'=>[$module.'/searchHistory'],'visible'=>$visible],
+			],
+		]);
+	?>
+	</div>

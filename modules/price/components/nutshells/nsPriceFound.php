@@ -1,0 +1,23 @@
+<?php
+
+class nsPriceFound extends ANutShell {
+
+	public function run()
+	{
+		$errors = new ErrorList(); // сюда складываются ошибки, которые мы потом может обработаем
+		$cleanedNumbers = new CleanedNumbers(new FormData($this->formData,'PriceForm','number'), $errors);
+		
+		(new ProcessFilteredNumbers(
+				$cleanedNumbers,
+				new AvailableProviders() )
+		)->process();
+
+		$this->controller->render('index',[
+				'controller'=> $this->controller,
+				'priceForm'=> new PriceForm(),
+				'cleanedNumbers' => $cleanedNumbers->value(),
+				'dbPartsPrice' => new DbPartPrice(),
+			]
+		);
+	}
+}
