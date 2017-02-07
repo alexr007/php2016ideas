@@ -67,8 +67,8 @@ return array(
 		'email'=>[
 			'class'=>'KEmail',
 			'host_name'=>'smtp.gmail.com',
-			'user'=>'a77x77@gmail.com',
-			'password'=>'Cfvceyu1',
+			'user'=>'',
+			'password'=>'',
 			'host_port'=>465,
 			'ssl'=>'true',
 		],	
@@ -101,7 +101,6 @@ return array(
 		],
 
 		'db'=>require(dirname(__FILE__).'/database.php'),
-		'db_prod'=>require(dirname(__FILE__).'/database_r.php'),
 
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors

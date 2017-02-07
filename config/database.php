@@ -2,7 +2,7 @@
 
 return [
     'class'=>'CDbConnection',
-	'connectionString'=>'pgsql:host=127.0.0.1;port=5432;dbname=avtomir',
-	'username' => 'postgres',
-	'password' => 'pg123457',
+	'connectionString'=>require(dirname(__FILE__).'/specific/db_name.php'),
+	'username' => require(dirname(__FILE__).'/specific/db_login.php'),
+	'password' => require(dirname(__FILE__).'/specific/db_password.php'),
 ];
