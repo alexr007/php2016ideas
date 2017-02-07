@@ -2,9 +2,6 @@
 
 class PricedController extends PriceController
 {
-	
-	//public $defaultAction ='found';
-	
 	public function actionIndex()
 	{
 		(new nsPriceFound($this, $_POST, $_GET))->run();
@@ -18,5 +15,4 @@ class PricedController extends PriceController
 			Yii::app()->createUrl("price/cart/index")
 		);
 	}
-	
 }
