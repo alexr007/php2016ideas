@@ -4,7 +4,8 @@ class File extends CActiveRecord
 {
 	const T_XLS = 1;
 	const T_IMG = 2;
-	
+    const T_TXT = 3;
+
 	const ROOT_FOLDER_ALIAS = 'webroot.data.files';
 	
 	private $_root_folder_alias;

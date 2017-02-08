@@ -8,6 +8,7 @@
 //			'activeCssClass'=>'active',
 //			'activateParents'=>true,
 			'items'=>[
+                ['label'=>'Upload Price','url'=>[$module.'/price/index'], 	'visible'=>$visible],
 				['label'=>'FileControl','url'=>[$module.'/files/index'], 	'visible'=>$visible],
 				['label'=>'WWW Links',	'url'=>[$module.'/link/index'], 	'visible'=>$visible],
 				['label'=>'Parameters',	'url'=>[$module.'/parameter'], 		'visible'=>$visible],
