@@ -16,6 +16,7 @@ class LActiveRecord extends CActiveRecord
 			'enabled'=>false, 	// scope enabled()
 			'realonly'=>false, 	// scope realonly()
 			'opened'=>false, 	// scope opened()
+            'allowed'=>[], // all allowed
 		];
 
 		if (!is_array($params))
@@ -38,10 +39,18 @@ class LActiveRecord extends CActiveRecord
 		if ($values['realonly']) $model =  $model->realonly();
 		if ($values['opened']) $model =  $model->opened();
 		
-		$findParams = ['order'=>static::$list_sort_field];
-		if ($sql) $findParams = array_merge ($findParams, ['condition'=>$sql]);
-		
-		return $r + CHtml::listData($model->findAll($findParams), static::$list_key_field, static::$list_name_field);;
+		$condition = ['order'=>static::$list_sort_field];
+		if ($sql) {
+		    $condition = array_merge ($condition, ['condition'=>$sql]);
+        }
+
+		if ($values['allowed']==[]) {
+            $dataFound = $model->findAll($condition);
+        }
+        else {
+            $dataFound = $model->findAllByAttributes([static::$list_key_field=>$values['allowed']], $condition);
+        }
+		return $r + CHtml::listData($dataFound, static::$list_key_field, static::$list_name_field);;
 	}
 	
 	public function getId()

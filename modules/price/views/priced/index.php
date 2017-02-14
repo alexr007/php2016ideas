@@ -61,10 +61,10 @@
 				'value'=>'CHtml::textField("DbPartPrice[$data->pp_id][pp_cnt]","",["style"=>"width:45px"])',
 				'htmlOptions'=>['width'=>'49px'], 
 			],
-			[
+            [
 				'header'=>'Delivery',
 				'type'=>'raw',
-				'value'=>'CHtml::dropDownList("DbPartPrice[$data->pp_id][pp_dtype]", null, DbDeliveryType::listData(["show_all"=>false,"show_empty"=>true]))',
+				'value'=>'CHtml::dropDownList("DbPartPrice[$data->pp_id][pp_dtype]", null, DbDeliveryType::listData(["show_all"=>false,"show_empty"=>true,"allowed"=>(new DeliveryTypeFiltered())->getAllowedByDealer($data->pp_dealer)]))',
 				'htmlOptions'=>['width'=>'55px'], 
 			],
 		],
