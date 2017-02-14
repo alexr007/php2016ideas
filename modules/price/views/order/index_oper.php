@@ -34,6 +34,7 @@
                     'htmlOptions'=>['class' => 'tac',
                                     'width'=>'100px'],
                 ],
+                /*
                 [	'header'=>'Date Process',
                     'type'=>'raw',
                     'value'=>'$data->dateProcessS',
@@ -46,6 +47,7 @@
                     'htmlOptions'=>['class' => 'tac',
                                     'width'=>'100px'],
                 ],
+                */
                 [	'header'=>'lines',
                     'value'=>'$data->getTotalUniqueNumbers()',
                     'htmlOptions'=>['class' => 'tac'],

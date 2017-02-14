@@ -84,7 +84,7 @@ class DbOrder extends CActiveRecord
 	
 	public function getDateInS()
 	{
-		return (new DateFormatted($this->o_date_in))->date();
+		return (new DateFormatted($this->o_date_in, "d.m.Y H:m"))->date();
 	}
 	
 	public function getDateProcessS()
