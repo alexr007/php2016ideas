@@ -15,14 +15,14 @@ class ProcessedNumber {
 		$this->dataLink = $data;
 		$this->errLink = $err;
 		
-		$this->processNumber();
+		$this->process();
 		
 		// если есть ошибки - то печатаем
 		//foreach ($this->errLink->toArray() as $err)
 		//	VarDumper::dump($err);
 	}
 	
-	private function processNumber()
+	private function process()
 	{
 		new PriceLogger($this->partNumber, new DbPartSearchHistory());
 		
