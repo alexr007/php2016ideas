@@ -15,7 +15,6 @@ class PriceFinderSQLTable extends PriceFinder
 		// цикл по массиву который нам отдал SOAP
 		foreach ($this->items as $item) {
 			//new DumpExit($item);
-
 		    $this->addResult(
 				new PriceItem([
 					'_dealer'=>$this->getDealerId(),
@@ -25,7 +24,7 @@ class PriceFinderSQLTable extends PriceFinder
 					'_desc_en'=>$item->pr_name,
 					//'_desc_ru'=> mb_substr($item['descr_ru'], 0, self::MAX_LENGTH)  ,
                     '_weight'=>(float)$this->weightModify($item->pr_weight),
-					'_price'=>$this->priceModify($eur->value($item->pr_price)),
+					'_price'=>$this->priceModify($eur->value($item->pr_price+$item->pr_core)),
 					'_core'=>$item->pr_core,
 				])
 			);

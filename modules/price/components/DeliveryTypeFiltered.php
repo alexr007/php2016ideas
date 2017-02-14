@@ -8,9 +8,9 @@
  */
 class DeliveryTypeFiltered {
     public $allowed = [
-        ['dealer'=>1, 'allowed'=>[1,2]], // AMT
-        ['dealer'=>2, 'allowed'=>[1]], // Vivat
-        ['dealer'=>4, 'allowed'=>[1]], //Germany
+        ['dealer'=>1, 'allowed'=>[1,2]], // AMT // Avia + Sea
+        ['dealer'=>2, 'allowed'=>[1]], // Vivat // Avia
+        ['dealer'=>4, 'allowed'=>[1]], // Germany // Avia
     ];
 
     public function getAllowedByDealer($dealer) {
