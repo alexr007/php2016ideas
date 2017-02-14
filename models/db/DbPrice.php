@@ -11,7 +11,12 @@
  * @property string $pr_name
  * @property string $pr_price
  * @property string $pr_weight
- * @property integer $pr_country
+ * @property integer $pr_dealer
+ * @property string $pr_core
+ *
+ * The followings are the available model relations:
+ * @property Dealer $prDealer
+ * @property Vendors $prVendor
  */
 class DbPrice extends CActiveRecord
 {
@@ -31,12 +36,12 @@ class DbPrice extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('pr_vendor, pr_country', 'numerical', 'integerOnly'=>true),
-			array('pr_price, pr_weight', 'length', 'max'=>10),
+			array('pr_vendor, pr_dealer', 'numerical', 'integerOnly'=>true),
+			array('pr_price, pr_weight, pr_core', 'length', 'max'=>10),
 			array('pr_date, pr_number, pr_name', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('pr_id, pr_vendor, pr_date, pr_number, pr_name, pr_price, pr_weight, pr_country', 'safe', 'on'=>'search'),
+			array('pr_id, pr_vendor, pr_date, pr_number, pr_name, pr_price, pr_weight, pr_dealer, pr_core', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -48,6 +53,8 @@ class DbPrice extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'prDealer' => array(self::BELONGS_TO, 'DbDealer', 'pr_dealer'),
+			'prVendor' => array(self::BELONGS_TO, 'DbVendor', 'pr_vendor'),
 		);
 	}
 
@@ -64,7 +71,8 @@ class DbPrice extends CActiveRecord
 			'pr_name' => 'Pr Name',
 			'pr_price' => 'Pr Price',
 			'pr_weight' => 'Pr Weight',
-			'pr_country' => 'Pr Country',
+			'pr_dealer' => 'Pr Dealer',
+			'pr_core' => 'Pr Core',
 		);
 	}
 
@@ -93,7 +101,8 @@ class DbPrice extends CActiveRecord
 		$criteria->compare('pr_name',$this->pr_name,true);
 		$criteria->compare('pr_price',$this->pr_price,true);
 		$criteria->compare('pr_weight',$this->pr_weight,true);
-		$criteria->compare('pr_country',$this->pr_country);
+		$criteria->compare('pr_dealer',$this->pr_dealer);
+		$criteria->compare('pr_core',$this->pr_core,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -110,11 +119,4 @@ class DbPrice extends CActiveRecord
 	{
 		return parent::model($className);
 	}
-
-    public static function deleteByVendor($vendor)
-    {
-        self::model()->dbConnection->createCommand()
-            ->delete(tableName(),"pr_vendor=:vendor",[":vendor"=>$vendor])
-            -execute();
-    }
 }

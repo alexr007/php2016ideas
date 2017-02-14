@@ -55,5 +55,9 @@ class DbVendor extends LActiveRecord
 	{
 		return parent::model($className);
 	}
-	
+
+	public function name() {
+	    return $this->v_name;
+    }
+
 }

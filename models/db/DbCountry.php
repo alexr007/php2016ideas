@@ -12,7 +12,7 @@ class DbCountry extends LActiveRecord
 {
 	public static $list_key_field='co_id';
 	public static $list_name_field='co_name';
-	public static $list_sort_field='co_sname';
+	public static $list_sort_field='co_id';
 	/**
 	 * @return string the associated database table name
 	 */

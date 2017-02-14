@@ -13,9 +13,11 @@ class AvailableProviders implements IAvailableProviders {
         $accessAMT = require(
             Yii::getPathOfAlias("application.config.access").DIRECTORY_SEPARATOR.'access_amt.php'
         );
+
         $avail =  [
             new PriceFinderConfiguration('amt', 'PriceFinderAMT', $accessAMT),
             new PriceFinderConfiguration('vivat', 'PriceFinderVivat', $accessVIVAT),
+            new PriceFinderConfiguration('germany1', 'PriceFinderSQLTable', []),
         ];
 
         $providers = new CList();

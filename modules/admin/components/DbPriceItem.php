@@ -47,6 +47,19 @@ class DbPriceItem {
     }
 
     public function saveToDb() {
+        Yii::app()->db->createCommand()
+            ->insert("price",[
+                "pr_vendor"=>$this->vendor(),
+                "pr_number"=>$this->number(),
+                "pr_name"=>$this->name(),
+                "pr_price"=>$this->price(),
+                "pr_weight"=>$this->weight()
+            ]);
+        return;
+
+
+
+
         $dbPrice = new DbPrice();
         $dbPrice->pr_vendor = $this->vendor();
         $dbPrice->pr_number = $this->number();

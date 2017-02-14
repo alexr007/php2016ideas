@@ -15,19 +15,39 @@ class UploadPriceToDb
     }
 
     private function stripQuotes($line) {
-        return $line;
-        return substr($line,1,strlen($line)-2);
+        $line2 = str_replace(",",".",$line);
+        //return $line2;`
+        return substr($line2,1,strlen($line2)-2);
     }
 
     public function upload() {
+        set_time_limit(0);
+        ignore_user_abort(true);
+        ini_set('max_execution_time', 0);
+
         $handle = fopen($this->file, "r");
         fgets($handle);
+
+
+        $transaction = Yii::app()->db->beginTransaction();
+        $count = 0;
+
         while ($line = trim(fgets($handle))) {
             $items = explode(";", $line);
-            new DumpExit($this->stripQuotes($items[0]), false);
-            new DumpExit($this->stripQuotes($items[1]), false);
-            new DumpExit($this->stripQuotes($items[2]), false);
-            new DumpExit($this->stripQuotes($items[6]));
+            $pi = new DbPriceItem(1,
+                $this->stripQuotes($items[0]),
+                $this->stripQuotes($items[1]),
+                $this->stripQuotes($items[2]),
+                $this->stripQuotes($items[6])
+            );
+            $pi->saveToDb();
+            $count++;
+            if ($count % 10000 ==0) {
+                $transaction->commit();
+                $transaction = Yii::app()->db->beginTransaction();
+            }
         }
+
+        $transaction->commit();
     }
 }

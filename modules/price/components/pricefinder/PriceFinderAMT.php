@@ -1,11 +1,9 @@
 <?php
 
 class PriceFinderAMT extends PriceFinder
-
 {
-	
-	public $ws_login = ''; // KV
-	public $ws_passwd = ''; // 2016honda
+	public $ws_login = '';
+	public $ws_passwd = '';
 	public $ws_params = ['encoding'=>'cp1251','connection_timeout'=>3, 'exceptions'=>0]; //,'trace'=>1
 	public $ws_path = "http://automototrade.com/wsdl/server.php?wsdl";
 
