@@ -64,6 +64,7 @@ class DbOrder extends CActiveRecord
 		
 		return new CActiveDataProvider($this, [
 			'criteria'=>$criteria,
+            'pagination'=>['pageSize'=>22],
 		]);
 	}
 	
