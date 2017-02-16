@@ -1,33 +1,30 @@
 <?php
 
-class PriceFinderNotusedExcel extends PriceFinder_not_used
+class PriceFinderExcel implements IPriceFinder
 {
 	private $file;
-	private $items;
-	
-	public function __construct($file, $values = array()) {
-		parent::__construct($values);
-		$this->file = $file;
-		$this->items = new CList();
+    private $connect;
+    private $priceCorr = null;
+    private $weightCorr = null;
 
+	public function __construct($file, $values = array()) {
+        if ($values != null) {
+            foreach ($values as $key=>$value) {
+                $this->$key=$value;
+            }
+        }
+        $rtUser = new RuntimeUser();
+        $this->priceCorr = new PriceBuild($rtUser);
+        $this->weightCorr = new WeightBuild($rtUser);
+        $this->file = $file;
 	}
 	
-	protected function excelConnect()
+	private function excel()
 	{
-		$this->_connect->add( PHPExcel_IOFactory::load($this->file)	);
-	}
-	
-	protected function excelConnected()
-	{
-		return $this->_connect->count() != 0;
-	}
-	
-	protected function excelConnection()
-	{
-		if (!$this->excelConnected())
-			$this->excelConnect();
-		
-		return $this->_connect->itemAt(0);
+		if (!$this->connect->count()) {
+            $this->connect->add( PHPExcel_IOFactory::load($this->file)	);
+        }
+		return $this->connect->itemAt(0);
 	}
 	
 	protected function getDealerId()
@@ -35,31 +32,33 @@ class PriceFinderNotusedExcel extends PriceFinder_not_used
 		return 3;
 	}
 	
-	private function fillResult()
-	{
+	private function responseParsed($items) {
+        $list = new CList();
 		// цикл по массиву который нам отдал поиск по файлу
-		foreach ($this->items as $item)
-			$this->addResult(
+		foreach ($items as $item)
+			$list->add(
 				new PriceItem([
 					'_dealer'=>$this->getDealerId(),
 					'_vendor'=>$item['A'],
 					'_number'=>$item['B'],
-					'_price'=>$this->priceModify($item['C']),
+					'_price'=>$this->priceCorr->price($item['C']),
 				])
 			);
+		return $list;
 	}
 	
-	public function searchItem()
-	{
-		$this->items->clear();
-		$sheet = $this->excelConnection()->getActiveSheet()->toArray(null,true,true,true);
-		
-		foreach ($sheet as $row)
-			foreach ($row as $cell)
-				if (!(mb_strpos(mb_strtoupper((string)$cell), $this->getSearch())=== false))
-					$this->items->add($row);
-		
-		$this->fillResult();
-		return true;
-	}
+    public function search2($numberToSearch)
+    {
+        $data = new CList();
+        $errors = new CList();
+        $sheet = $this->excel()->getActiveSheet()->toArray(null,true,true,true);
+        foreach ($sheet as $row) {
+            foreach ($row as $cell) {
+                if (!(mb_strpos(mb_strtoupper((string)$cell), mb_strtoupper($numberToSearch))=== false))
+                    $data->add($row);
+            }
+        }
+        $data=$this->responseParsed($data);
+        return new SearchResults($data, $errors);
+    }
 }
