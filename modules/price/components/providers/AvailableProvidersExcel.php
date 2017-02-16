@@ -18,6 +18,6 @@ class AvailableProvidersExcel implements IAvailableProviders {
     private function buildProvidersList()
     {
 		foreach (File::findXls() as $file)
-			$this->providers->add(	new PriceFinderExcel($file->getFullFilePath())	);
+			$this->providers->add(	new PriceFinderNotusedExcel($file->getFullFilePath())	);
     }
 }

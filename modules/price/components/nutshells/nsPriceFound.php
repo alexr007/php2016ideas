@@ -6,16 +6,17 @@ class nsPriceFound extends ANutShell {
 	{
 		$errors = new ErrorList(); // сюда складываются ошибки, которые мы потом может обработаем
 		$cleanedNumbers = new CleanedNumbers(new FormData($this->formData,'PriceForm','number'), $errors);
-		
+
+		$providers = new AvailableProviders();
 		(new ProcessFilteredNumbers(
 				$cleanedNumbers,
-				new AvailableProviders() )
+				$providers )
 		)->process();
 
 		$this->controller->render('index',[
 				'controller'=> $this->controller,
 				'priceForm'=> new PriceForm(),
-				'cleanedNumbers' => $cleanedNumbers->value(),
+				'cleanedNumbers' => $cleanedNumbers->get(),
 				'dbPartsPrice' => new DbPartPrice(),
 			]
 		);

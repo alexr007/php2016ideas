@@ -1,6 +1,6 @@
 <?php
 
-abstract class PriceFinder extends CComponent
+abstract class PriceFinder_not_used extends CComponent
 {
 	protected $_errors;
 	protected $_result;

@@ -12,8 +12,6 @@ class CleanedNumbers {
 		$this->filtered = new CUniqueNonEmplyList();
 		$this->source = $data->value();
 		$this->errorHandler = $errorHandler;
-		$this->cleanNumbers();
-		$this->checkNull();
 	}
 	
 	private function cleanNumbers()
@@ -36,8 +34,10 @@ class CleanedNumbers {
 			$this->errorHandler->add("No numbers given, please input numbers.");
 	}
 	
-	public function value()
+	public function get()
 	{
+        $this->cleanNumbers();
+        $this->checkNull();
 		return $this->filtered;
 	}
 }

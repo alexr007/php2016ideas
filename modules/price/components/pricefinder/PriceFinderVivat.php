@@ -1,138 +1,138 @@
 <?php
 
-class PriceFinderVivat extends PriceFinder
-{
+class PriceFinderVivat implements IPriceFinder {
 	public $login = '';
 	public $passwd = '';
-	public $token = '';
-	public $ws_path = '';
 
-	private $items;
-	private $_dbAr = null;
-	
-	protected function getDealerId()
+	private $ar = null;
+    private $priceCorr = null;
+    private $weightCorr = null;
+
+    public function __construct(array $values = [])
+    {
+        if ($values != null) {
+            foreach ($values as $key=>$value) {
+                $this->$key=$value;
+            }
+        }
+        $rtUser = new RuntimeUser();
+        $this->priceCorr = new PriceBuild($rtUser);
+        $this->weightCorr = new WeightBuild($rtUser);
+    }
+
+	private function getDealerId()
 	{
-		return 2;
+		return 2; // mean VIVAT
 	}
 	
-	private function loadAr()
+	private function loadAR()
 	{
-		if ($this->_dbAr == null)
-			$this->_dbAr = DbWebService::model()->findByPk(2); // 2 - Mean VIVAT
+		if (!$this->ar) {
+            $this->ar = DbWebService::model()->findByPk(2); // 2 - Mean VIVAT
+        }
 	}
 	
-	private function fillResult()
-	{
-		$data = $this->items->data; //point to xml section <data>
-		
-		foreach ($data->row as $item)
-			$this->addResult(
-				new PriceItem([
-					//'_dealer'=>'UAE',
-					'_dealer'=>$this->getDealerId(),
-					'_vendor'=>(string)$item->brand,
-					'_number'=>(int)$item->issubst == 0 ? (string)$item->partno : '',
-					'_replaceNumber'=>$item->issubst > 0 ? (string)$item->partno : '',
-					'_depot'=>(string)$item->depot,
-					'_desc_en'=>(string)$item->desceng,
-					'_desc_ru'=>(string)$item->descrus,
-					'_volume'=>(float)$item->volume,
-                    //'_weight'=>(float)$item->weight,
-                    '_weight'=>(float)$this->weightModify($item->weight),
-					'_price'=>$this->priceModify((float)$item->price),
-					'_qty'=>(int)$item->qty,
-				])
-			);	
+	private function responseParsed($data) {
+        $list = new CList();
+		foreach ($data->row as $item) {
+            $list->add(
+                new PriceItem([
+                    '_dealer'=>$this->getDealerId(),
+                    '_vendor'=>(string)$item->brand,
+                    '_number'=>(int)$item->issubst == 0 ? (string)$item->partno : '',
+                    '_replaceNumber'=>$item->issubst > 0 ? (string)$item->partno : '',
+                    '_depot'=>(string)$item->depot,
+                    '_desc_en'=>(string)$item->desceng,
+                    '_desc_ru'=>(string)$item->descrus,
+                    '_volume'=>(float)$item->volume,
+                    '_weight'=>(float)$this->weightCorr->weight($item->weight),
+                    '_price'=>(float)$this->priceCorr->price((float)$item->price),
+                    '_qty'=>(int)$item->qty,
+                ])
+            );
+        }
+        return $list;
 	}
 	
 	public function loadTokenFromDb()
 	{
-		$this->loadAr();
-		$token = $this->_dbAr->getToken();
-		return $token;
+		$this->loadAR();
+		return $this->ar->getToken();
 	}
 	
 	public function saveTokenToDb($token)
 	{
-		$this->loadAr();
-		$this->_dbAr->setToken($token)->save();
+		$this->loadAR();
+		$this->ar->setToken($token)->save();
 	}
 	
 	public function getNewTokenFromVivat()
 	{
-		$this->loadAr();
-		$pathMain=$this->_dbAr->getPathMain();
-		$pathToken=$this->_dbAr->getPathToken();
+		$this->loadAR();
+		$pathMain=$this->ar->getPathMain();
+		$pathToken=$this->ar->getPathToken();
 		$path=$pathMain.$pathToken;
 		$path=str_replace('$login',$this->login,$path);
 		$path=str_replace('$passwd',$this->passwd,$path);
-		
 //		new DumpExit($path);
-		
-		$content = file_get_contents($path);
-		$xml = new SimpleXMLElement($content);
-		
-		$status_id = (int)$xml->status->id;
-		$status_text =(string)$xml->status->text;
-		$token = (string)$xml->data->row->token;
-
-		if ($status_id == null) {
+		$xml = new SimpleXMLElement(
+		    @file_get_contents($path)
+        );
+        $token = (string)$xml->data->row->token;
+        $ret = (int)$xml->status->id;
+		if ($ret == 0) {
 			$this->saveTokenToDb($token);
-			return true;
+			$ret = true;
 		}
-		
-		return $status_id;
+		return $ret;
 	}
 	
 	public function queryToVivat($search = null)
 	{
-		if ($search == null) return false;
-		
-		$token = $this->loadTokenFromDb();
-		$pathMain=$this->_dbAr->getPathMain();
-		$pathPrice=$this->_dbAr->getPathPrice();
-		$path=$pathMain.$pathPrice;
-		$path=str_replace('$token',$token,$path);
-		$path=str_replace('$partno',$search,$path);
-		
-		if(!($content = @file_get_contents($path))) return false;
-		
-		return new SimpleXMLElement($content);
+        $ret = false;
+        if ($search) {
+            $token = $this->loadTokenFromDb();
+            $pathMain=$this->ar->getPathMain();
+            $pathPrice=$this->ar->getPathPrice();
+            $path=$pathMain.$pathPrice;
+            $path=str_replace('$token',$token,$path);
+            $path=str_replace('$partno',$search,$path);
+            if($content = @file_get_contents($path)) {
+                $ret = new SimpleXMLElement($content);
+            }
+        }
+		return $ret;
 	}
 	
-	public function searchItem()
-	{
-		$number = $this->getSearch();
-		$xml = $this->queryToVivat($number);
-		//new DumpExit($xml, false);
-		
-		if (!$xml) {
-			$this->addError("server no response");
-			return false;
-		}
-		
-		// здесь мы предполагаем что токен просто устарел, не обрабатывая остальные ошибки !!!!
-		if ($xml->status->id != null) {
-			// и просто получаем новый токен и думаем, что все ОК
-			$this->getNewTokenFromVivat();
-			$xml = $this->queryToVivat($number);
-		}
-		
-		//new DumpExit($xml);
-		
-		if (($xml->status->id == 0)&&($xml->status->text=='НЕТ В БАЗЕ ДАННЫХ')) {
-			$this->addError("not found");
-			return false;
-		}
-		
-		if ($xml->data->row->price == 0) {
-			$this->addError("not found");
-			return false;
-		}
-		
-		$this->items = $xml;
-		
-		$this->fillResult();
-		return true;
-	}
+    public function search2($numberToSearch)
+    {
+        $data = new CList();
+        $errors = new CList();
+        if (!($xml=$this->queryToVivat($numberToSearch))) {
+            $errors->add("server no response");
+        }
+        else {
+            // здесь мы предполагаем что токен просто устарел, не обрабатывая остальные ошибки !!!!
+            if ($xml->status->id != null) {
+                // и просто получаем новый токен
+                $this->getNewTokenFromVivat();
+                // и думаем, что все ОК
+                $xml = $this->queryToVivat($numberToSearch);
+                //new DumpExit($xml);
+            }
+            if (($xml->status->id == 0)&&($xml->status->text=='НЕТ В БАЗЕ ДАННЫХ')) {
+                $errors->add("no in database");
+            }
+            elseif (($xml->status->id == 0)&&($xml->status->text=='НЕТ ЦЕНЫ')) {
+                $errors->add("no price");
+            }
+            elseif ($xml->data->row->price == 0) {
+                $errors->add("no price");
+            }
+            else {
+                $data = $this->responseParsed($xml->data); //point to xml section <data>
+            }
+        }
+        return new SearchResults($data, $errors);
+    }
 }

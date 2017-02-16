@@ -1,6 +1,6 @@
 <?php
 
-class PriceFinderExcel extends PriceFinder
+class PriceFinderNotusedExcel extends PriceFinder_not_used
 {
 	private $file;
 	private $items;

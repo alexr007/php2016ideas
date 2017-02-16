@@ -1,7 +1,6 @@
 <?php
 
 class ProcessFilteredNumbers {
-	
 	private $cleanedNumbers;
 	private $providers;
 	
@@ -13,15 +12,12 @@ class ProcessFilteredNumbers {
 	
 	function process()
 	{
-		if ($this->cleanedNumbers->value()->count() == 0) return;
-		
 		$data = new CList();
 		$err = new CList(); // ошибки, возможно, потом обработаем
-		
-		foreach ($this->cleanedNumbers->value() as $number) 
-			new ProcessedNumber($number, $this->providers, $data, $err);
-
+		foreach ($this->cleanedNumbers->get() as $number)  {
+            (new ProcessedNumber($number, $this->providers, $data, $err))
+                ->process();
+        }
 		new FoundResultsStore($data, new RuntimeSession());
 	}
-	
 }

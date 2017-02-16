@@ -1,9 +1,9 @@
 <?php
 
 class AvailableProviders implements IAvailableProviders {
+    private $providers;
 
-	public function items()
-	{
+    public function __construct() {
         $accessVIVATdata = require(
             Yii::getPathOfAlias("application.config.access").DIRECTORY_SEPARATOR.'access_vivat.php'
         );
@@ -20,13 +20,17 @@ class AvailableProviders implements IAvailableProviders {
             new PriceFinderConfiguration('germany1', 'PriceFinderSQLTable', []),
         ];
 
-        $providers = new CList();
+        $this->providers = new CList();
         foreach ($avail as $item) {
             $className = $item->className();
-            $providers->add(
+            $this->providers->add(
                 new $className($item->access())
             );
         }
-		return $providers;
+    }
+
+    public function items()
+	{
+		return $this->providers;
 	}
 }

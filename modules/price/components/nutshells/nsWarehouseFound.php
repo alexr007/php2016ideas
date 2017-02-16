@@ -12,7 +12,7 @@ class nsWarehouseFound extends ANutShell {
 		$this->controller->render('index',[
 				'controller'=> $this->controller,
 				'priceForm'=> new PriceForm(),
-				'cleanedNumbers' => $cleanedNumbers->value(),
+				'cleanedNumbers' => $cleanedNumbers->get(),
 				'dbPartsPrice' => new DbPartPrice(),
 				]
 			);
