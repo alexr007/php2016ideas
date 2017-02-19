@@ -13,7 +13,7 @@ class AMTReplaceParsed {
     }
 
     /*
-     * special handling for AMT trash response like this:
+     * special handling for AMT ugly / trash response like this:
      * 'Part number 4884899AB was superceded by part number 4884899AC.'
      */
     public function value() {
