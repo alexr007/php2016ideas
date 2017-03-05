@@ -31,8 +31,8 @@ class PriceFinderVivat implements IPriceFinder {
             $this->ar = DbWebService::model()->findByPk(2); // 2 - Mean VIVAT
         }
 	}
-	
-	private function responseParsed($data) {
+
+    private function responseParsed($data) {
         $list = new CList();
 		foreach ($data->row as $item) {
             $list->add(
@@ -53,20 +53,46 @@ class PriceFinderVivat implements IPriceFinder {
         }
         return $list;
 	}
-	
-	public function loadTokenFromDb()
+
+    private function loadTokenFromDb()
 	{
 		$this->loadAR();
 		return $this->ar->getToken();
 	}
-	
-	public function saveTokenToDb($token)
+
+    private function saveTokenToDb($token)
 	{
 		$this->loadAR();
 		$this->ar->setToken($token)->save();
 	}
-	
-	public function getNewTokenFromVivat()
+
+	private function fetch($path) {
+        return @file_get_contents($path);
+    }
+
+    private function cleanQuery($search) {
+        // should be return false or XML
+        // just request and response without any analyze
+        $this->loadAR();
+        $token = $this->loadTokenFromDb();
+        $pathMain=$this->ar->getPathMain();
+        $pathPrice=$this->ar->getPathPrice();
+        $path=$pathMain.$pathPrice;
+        $path=str_replace('$token',$token,$path);
+        $path=str_replace('$partno',$search,$path);
+        $xml=false;
+        if($content=$this->fetch($path)) {
+            $xml = new SimpleXMLElement($content);
+            $code = (int)$xml->status->id; // mean network error
+        }
+        else {
+            $code = -99; // mean network error
+        }
+        (new DealerResponse($this->getDealerId()))->putRequest($code);
+        return $xml;
+    }
+
+    private function getNewTokenFromVivat()
 	{
 		$this->loadAR();
 		$pathMain=$this->ar->getPathMain();
@@ -76,62 +102,58 @@ class PriceFinderVivat implements IPriceFinder {
 		$path=str_replace('$passwd',$this->passwd,$path);
 //		new DumpExit($path);
 		$xml = new SimpleXMLElement(
-		    @file_get_contents($path)
+		    $this->fetch($path)
         );
         $token = (string)$xml->data->row->token;
-        $ret = (int)$xml->status->id;
-		if ($ret == 0) {
+        $code = (int)$xml->status->id;
+        $ret = false;
+        // log response
+        (new DealerResponse($this->getDealerId()))->putToken($code);
+		if ($code == 0) {
 			$this->saveTokenToDb($token);
 			$ret = true;
 		}
 		return $ret;
 	}
-	
-	public function queryToVivat($search = null)
+
+    private function queryToVivat($search = null)
 	{
-        $ret = false;
+	    // should be return false or XML
+        $xml = false;
         if ($search) {
-            $token = $this->loadTokenFromDb();
-            $pathMain=$this->ar->getPathMain();
-            $pathPrice=$this->ar->getPathPrice();
-            $path=$pathMain.$pathPrice;
-            $path=str_replace('$token',$token,$path);
-            $path=str_replace('$partno',$search,$path);
-            if($content = @file_get_contents($path)) {
-                $ret = new SimpleXMLElement($content);
+            // есть что искать, ищем
+            if ($xml = $this->cleanQuery($search)) {
+                // есть ответ, уже хорошо
+                if (in_array((int)$xml->status->id, [1,2])) {
+                    // ошибка исправима, токен надо просто переполучить
+                    if ($this->getNewTokenFromVivat()) {
+                        $xml = $this->cleanQuery($search);
+                    };
+                }
             }
         }
-		return $ret;
+		return $xml;
 	}
 	
     public function search2($numberToSearch)
     {
         $data = new CList();
         $errors = new CList();
-        if (!($xml=$this->queryToVivat($numberToSearch))) {
+        $xml=$this->queryToVivat($numberToSearch);
+        if ($xml === false) {
             $errors->add("server no response");
         }
-        else {
-            // здесь мы предполагаем что токен просто устарел, не обрабатывая остальные ошибки !!!!
-            if ($xml->status->id != null) {
-                // и просто получаем новый токен
-                $this->getNewTokenFromVivat();
-                // и думаем, что все ОК
-                $xml = $this->queryToVivat($numberToSearch);
-                //new DumpExit($xml);
-            }
-            if (($xml->status->id == 0)&&($xml->status->text=='НЕТ В БАЗЕ ДАННЫХ')) {
-                $errors->add("no in database");
-            }
-            elseif (($xml->status->id == 0)&&($xml->status->text=='НЕТ ЦЕНЫ')) {
-                $errors->add("no price");
-            }
-            elseif ($xml->data->row->price == 0) {
-                $errors->add("no price");
-            }
-            else {
-                $data = $this->responseParsed($xml->data); //point to xml section <data>
-            }
+        elseif (((int)$xml->status->id == 0)&&($xml->status->text=='НЕТ В БАЗЕ ДАННЫХ')) {
+            $errors->add("no in database");
+        }
+        elseif (((int)$xml->status->id == 0)&&($xml->status->text=='НЕТ ЦЕНЫ')) {
+            $errors->add("no price");
+        }
+        elseif ($xml->data->row->price == 0) {
+            $errors->add("no price");
+        }
+        elseif ((int)$xml->status->id == 0) {
+            $data = $this->responseParsed($xml->data); //point to xml section <data>
         }
         return new SearchResults($data, $errors);
     }
