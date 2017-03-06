@@ -40,16 +40,12 @@ class DbOrderItem extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
-		return array(
-			array('oi_order, oi_status, oi_ship_method, oi_dealer, oi_qty', 'numerical', 'integerOnly'=>true),
-			array('oi_price, oi_weight, oi_volume', 'length', 'max'=>10),
-			array('oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe'),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('oi_id, oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe', 'on'=>'search'),
-		);
+		return [
+			['oi_order, oi_status, oi_ship_method, oi_dealer, oi_qty', 'numerical', 'integerOnly'=>true],
+			['oi_price, oi_weight, oi_volume', 'length', 'max'=>10],
+            ['oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe'],
+			['oi_id, oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe', 'on'=>'search'],
+        ];
 	}
 
 	/**
@@ -241,7 +237,7 @@ class DbOrderItem extends CActiveRecord
 				(new DbOrderItemCriteria())->byId($this->ExportExcelBehavior->extraParam)
 			);
 	}
-	
+
 	// это генерация заголовка
 	public function getXlReportHeader()
 	{
@@ -263,5 +259,18 @@ class DbOrderItem extends CActiveRecord
 			'total'=>$this->getTotalMoneyByLine(),
 		];
 	}
+
+	public function split($count) {
+        // $count - то - сколько надо выделить
+	    if ($count<$this->oi_qty) {
+            $className=__CLASS__;
+            $oi = new $className;
+            $oi->attributes = $this->attributes;
+            $oi->oi_qty = $count;
+            $this->oi_qty -= $count;
+            $oi->save();
+            $this->save();
+        }
+    }
 
 }

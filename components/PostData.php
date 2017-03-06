@@ -59,11 +59,11 @@ class PostData {
 	}
 
 	public function count() {
-		return $this->items->count();
+		return $this->items()->count();
 	}
 	
 	public function zero() {
-		return $this->items->count()==0;
+		return $this->items()->count()==0;
 	}
 	
 	private function items() {
@@ -99,13 +99,32 @@ class PostData {
 	}
 
 	public function updateDataset ($datasetArray) {
+        // проверяем массив ли на входе
         if (is_array($datasetArray)) {
+            // идем по строкам
             foreach ($datasetArray as $datasetItem) {
+                // данные которые изменены и надо изменить их в базе
                 $postLine = $this->byId($datasetItem->getPrimaryKey());
                 if (!$postLine->equals($datasetItem)) {
+                    // если изменены - то применяем
                     $postLine->apply($datasetItem);
                     $datasetItem->save();
                 }
+            }
+        }
+    }
+
+    public function splitDataset ($datasetArray) {
+        // проверяем массив ли на входе
+	    if (is_array($datasetArray)) {
+            // идем по строкам
+	        foreach ($datasetArray as $datasetItem) {
+                // применяем функцию
+                $datasetItem->split(
+                    (int)
+                    $this->byId($datasetItem->getPrimaryKey())
+                    ->byKey("oi_split")
+                );
             }
         }
     }

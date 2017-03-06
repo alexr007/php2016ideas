@@ -92,12 +92,15 @@ class OrderController extends PriceController {
     }
 
     public function actionSubmitEditOrderChanges () {
-
 	    $user = new RuntimeUser();
         if ($user->isOperator()) {
             $post = new PostData($_POST, 'DbOrderItem', new PostFields(['oi_status']), true);
-            //new DumpExit($post);
+            $split = new PostData($_POST, 'DbOrderItem', new PostFields(['oi_split']), true);
+            //new DumpExit($split, false);
+            //new DumpExit($post, false);
             $post->updateDataset(DbOrderItem::model()->findAllByAttributes(['oi_id'=>$post->keysToArray()]));
+            $split->splitDataset(DbOrderItem::model()->findAllByAttributes(['oi_id'=>$split->keysToArray()]));
+            // берем номер заказа, чтобы на него сделать redirect
             $orderId = DbOrderItem::model()->findByAttributes(['oi_id'=>$post->keysToArray()])->oi_order;
         }
         $this->redirect(["order/edit/id/$orderId"]); // адресация в рамках модуля

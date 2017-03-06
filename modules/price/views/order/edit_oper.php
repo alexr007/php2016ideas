@@ -81,7 +81,8 @@
 			], 
 			'oi_comment_user', 
 			'oi_comment_oper', 
-			[	'header'=>'Date Process', 
+			/*
+            [	'header'=>'Date Process',
 				'type'=>'raw',
 				'value'=>'$data->dateProcessS',
 				'htmlOptions'=>['class' => 'tac',
@@ -105,6 +106,13 @@
 				'htmlOptions'=>['class' => 'tac',
 								'width'=>'90px'],
 			],
+			*/
+            [	'header'=>'Split',
+                'type'=>'raw',
+                //'value'=>'CHtml::link($data->oi_number,Yii::app()->createUrl("price/order/split").$data->getCheckPriceUrl())',
+                'value'=>'CHtml::textField("DbOrderItem[$data->oi_id][oi_split]","",["style"=>"width:20px"])',
+                'htmlOptions'=>['class'=>'tac'],
+            ],
 			[
 				'class'=>'CButtonColumn',
 				'template'=> '{update} {delete}',
