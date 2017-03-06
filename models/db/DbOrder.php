@@ -55,13 +55,17 @@ class DbOrder extends CActiveRecord
 	{
 		$criteria=(new DbOrderCriteria($this))->criteria();
 		
-		if ($addCriteria)
-			if (is_array($addCriteria))
-				foreach ($addCriteria as $addCriteriaItem)
-					$criteria->mergeWith($addCriteriaItem);
-			else
-				$criteria->mergeWith($addCriteria);
-		
+		if ($addCriteria) {
+            if (is_array($addCriteria)) {
+                foreach ($addCriteria as $addCriteriaItem) {
+                    $criteria->mergeWith($addCriteriaItem);
+                }
+            }
+            else {
+                $criteria->mergeWith($addCriteria);
+            }
+        }
+
 		return new CActiveDataProvider($this, [
 			'criteria'=>$criteria,
             'pagination'=>['pageSize'=>22],
