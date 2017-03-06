@@ -89,6 +89,12 @@
         ['submit'=>['submitChanges'],
             'id'=>'buttonSubmitChanges']
     );
+    echo " ";
+
+    echo CHtml::button('All Order Items',
+        ['submit'=>['NewItems'],
+            'id'=>'buttonNewItems']
+    );
 
     $this->endWidget();
 

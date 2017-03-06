@@ -33,6 +33,7 @@ class DbOrder extends CActiveRecord
 			'oCagent' => [self::BELONGS_TO, 'DbCagent', 'o_cagent'],
 			'oStatus' => [self::BELONGS_TO, 'DbOrderStatus', 'o_status'],
 			'oStatistic' => [self::BELONGS_TO, 'DbOrderStatistics', 'o_id'],
+            'oItems' => [self::HAS_MANY, 'DbOrderItem', 'o_id'],
 		];
 	}
 

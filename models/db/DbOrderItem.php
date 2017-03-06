@@ -260,6 +260,58 @@ class DbOrderItem extends CActiveRecord
 		];
 	}
 
+    // =================================================================================================================
+	// это функция для вытаскивания набора конкретных данных
+    public function getXlDataItems()
+    {
+        return (new DbOrderItem())
+            ->with('oiOrder')
+            ->with('oiOrder.oCagent')
+            ->with('oiShipMethod')
+            ->with('oiDealer')
+            ->findAll(
+                (new DbOrderItemCriteria())->byType($this->ExportExcelBehavior->extraParam)
+            );
+    }
+
+    // это генерация заголовка
+    public function getXlReportHeaderItems()
+    {
+        return [
+            'Order Number',
+            'Cagent',
+            'ShipMethod',
+            'Dealer',
+            'Vendor',
+            'Part Number',
+            'Qty',
+            'Price 1 pcs',
+            'Description EN',
+            'Description RU',
+        ];
+    }
+
+    // это элементы строки
+    public function getXlReportItemItems()
+    {
+        return [
+            'o_number'=>$this->oiOrder->o_number,
+            'ca_name'=>$this->oiOrder->oCagent->ca_name,
+            //'dt_name'=>$this->oiShipMethod->dt_name,
+            'method'=>$this->getMethodS(),
+            //'dl_name'=>$this->oiDealer->dl_name,
+            'dealer'=>$this->getDealerNameS(),
+            'oi_vendor'=>$this->oi_vendor,
+            'oi_number'=>"'".$this->oi_number,
+            'oi_qty'=>$this->oi_qty,
+            'oi_price'=>$this->oi_price,
+            'desc_en'=>$this->oi_desc_en,
+            'desc_ru'=>$this->oi_desc_ru,
+            //'total'=>$this->getTotalMoneyByLine(),
+        ];
+    }
+    // =================================================================================================================
+
 	public function split($count) {
         // $count - то - сколько надо выделить
 	    if ($count<$this->oi_qty) {

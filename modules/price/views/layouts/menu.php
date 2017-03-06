@@ -10,6 +10,7 @@
 				
 				['label'=>'Cart',			'url'=>[$module.'/cart'],'visible'=>!$user->isGuest()],
 				['label'=>'Orders',			'url'=>[$module.'/order'],		'visible'=>!$user->isGuest()],
+                ['label'=>'OrderItems',		'url'=>[$module.'/order/newitems'],	'visible'=>$user->isOperator()],
 			],
 		]);
 	?>

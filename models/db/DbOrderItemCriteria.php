@@ -49,4 +49,14 @@ class DbOrderItemCriteria extends AbstractAddCriteria {
 		$criteria->mergeWith($this->criteria);
 		return $criteria;
 	}
+
+    public function byType($type)
+    {
+        $criteria=new CDbCriteria();
+        $criteria->join ='JOIN orders ON (o_id=oi_order)';
+        $criteria->compare('orders.o_status', $type);
+
+        $criteria->mergeWith($this->criteria);
+        return $criteria;
+    }
 }

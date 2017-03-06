@@ -46,6 +46,28 @@ class OrderController extends PriceController {
             ]);
         }
     }
+
+    // all new шеуьы
+    public function actionNewItems()
+    {
+        $dataProvider = (new DbOrderItem())
+            ->with('oiOrder')
+            ->with('oiOrder.oCagent')
+            ->with('oiShipMethod')
+            ->with('oiDealer');
+
+        $user = new RuntimeUser();
+        if ($user->isOperator()) {
+            $this->render('index_oper_new',[
+                'user' => $user,
+                'dataProvider' => $dataProvider->search([
+                    (new DbOrderCriteria())->onlyNewOrders(),
+                    (new DbOrderCriteria())->orderByDateDesc(),
+                ]),
+            ]);
+        }
+    }
+
 	/*
 	public function actionSubmitChanges () {
         $user = new RuntimeUser();
@@ -65,6 +87,18 @@ class OrderController extends PriceController {
 			'extraParam'=>$_GET['id'],
 		]);
 	}
+
+    public function actionExportExcelNewItems()
+    {
+        (new DbOrderItem())->exportExcel([
+            'ownerGetDataFunction'=>'XlDataItems', //getXlDataItems
+            'ownerHeaderFunction'=>'XlReportHeaderItems', //getXlReportHeaderItems
+            'ownerRowDataFunction'=>'XlReportItemItems', // getXlReportItemItems
+            'extraParam'=>DbOrderStatus::OS_CREATED,
+        ]);
+    }
+
+
 
 	// concrete order view
 	public function actionView($id)
