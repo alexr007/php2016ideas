@@ -21,7 +21,7 @@ class DbOrderCriteria extends AbstractAddCriteria {
 	public function orderByDateDesc()
 	{
 		$criteria=new CDbCriteria();
-		$criteria->order = 'o_number DESC';
+		$criteria->order = 'o_date_in DESC';
 		
 		$criteria->mergeWith($this->criteria);
 		return $criteria;
