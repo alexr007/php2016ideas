@@ -14,6 +14,7 @@
 				['label'=>'admin', 'url'=>['/admin'], 'visible'=>$show],
 				['label'=>'price', 'url'=>['/price']],
 				['label'=>'warehouse', 'url'=>['/warehouse'], 'visible'=>$user->isOperator()],
+                ['label'=>'invoice', 'url'=>['/invoice'], 'visible'=>$user->isOperator()],
                 ['label'=>'finance', 'url'=>['/finance'], 'visible'=>$user->isOperator()],
 
 				['label'=>'Login', 'url'=>['/access/user/login'], 'visible'=>$user->isGuest()],

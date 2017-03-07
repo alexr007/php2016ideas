@@ -38,4 +38,8 @@ class NormalizedPartNumber {
 		
 		return $num;
 	}
+
+	public function get() {
+	    return $this->number();
+    }
 }

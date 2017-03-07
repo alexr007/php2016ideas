@@ -16,6 +16,9 @@
  */
 class DbDealer extends LActiveRecord
 {
+    public static $list_key_field = "dl_id";	// id;
+    public static $list_name_field = "dl_name";	// 'name';
+    public static $list_sort_field = "dl_id";	// 'id';
 	/**
 	 * @return string the associated database table name
 	 */

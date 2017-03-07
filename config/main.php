@@ -30,6 +30,7 @@ return array(
 		'admin', // admin options
 		'warehouse',
         'finance',
+        'invoice',
 		'mnt',
 
 		'rbac'=>[
