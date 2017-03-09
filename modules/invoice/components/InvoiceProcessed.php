@@ -13,17 +13,26 @@ class InvoiceProcessed {
     }
 
     private function process() {
+        $invoice = new Invoice();
         foreach (explode("\n", $this->model->details) as $line) {
             $row = explode("\t", $line);
             if (count($row)==3) {
-                $invoiceLine = new InvoiceLine($row[0],$row[1],$row[2]);
-                new DumpExit($invoiceLine->toString(),false);
+                $invoice->add(new InvoiceLine(new InvPartNumber($row[0], $row[1]), $row[2]));
             }
         }
+        /*
+         * THIS IS TEST
+        $pn = new InvPartNumber("FIAT","SP149125AE");
+        new DumpExit($invoice->toString(),false);
+        new DumpExit($invoice->contains($pn),false);
+        $invoice->remove($pn);
+        new DumpExit($invoice->contains($pn),false);
+        new DumpExit($invoice->toString(),false);
+        */
+        return $invoice;
     }
 
     public function data() {
-        $this->process();
-        return "Done";
+        return $this->process()->toString();
     }
 }

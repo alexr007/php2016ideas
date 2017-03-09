@@ -8,7 +8,7 @@
  */
 class NormalizedVendor {
 
-    const MIN_LENGTH = 3;
+    const MIN_LENGTH = 2;
     const MAX_LENGTH = 32;
     const RULES = [
         ['search'=>'/[\W]/', // разрешаем A-Z, 0-9, _
