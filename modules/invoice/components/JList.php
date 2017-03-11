@@ -5,6 +5,9 @@
  * User: alexr
  * Date: 09.03.2017
  * Time: 23:03
+ *
+ * поиск элемента по массиву с помощи
+ * функции equals элемента массива
  */
 class JList implements IteratorAggregate{
     private $list;
@@ -29,14 +32,12 @@ class JList implements IteratorAggregate{
     }
 
     public function remove($item) {
-        $index = $this->indexOf($item);
-        if ($index === false) {
-            return false;
-        }
-        else {
+        $ret = false;
+        if (($index = $this->indexOf($item)) !== false) {
             $this->list->removeAt($index);
-            return true;
+            $ret = true;
         }
+        return $ret;
     }
 
     public function contains($item) {

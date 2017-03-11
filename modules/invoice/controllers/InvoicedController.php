@@ -7,16 +7,16 @@ class InvoicedController extends InvoiceController
     public function actionParse()
 	{
         $model = new FormInvoice();
-        if (isset($_POST['FormInvoice'])) {
-            $model->attributes = $_POST['FormInvoice'];
-            $this->render('invoice_parsed',[
-                'processed' => new InvoiceProcessed($model),
-            ]);
-        }
-        else {
+        if (!isset($_POST['FormInvoice'])) {
             $this->render('invoice_getinfo',[
                 'model' => $model,
                 'dealers' => new DbDealer(),
+            ]);
+        }
+        else {
+            $model->attributes = $_POST['FormInvoice'];
+            $this->render('invoice_parsed',[
+                'processed' => new InvoiceProcessed($model),
             ]);
         }
 
