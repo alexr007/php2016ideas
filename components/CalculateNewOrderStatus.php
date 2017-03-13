@@ -5,6 +5,13 @@
  * User: alexr
  * Date: 02.02.2017
  * Time: 13:54
+ *
+ * эта хрень высчитывает Общий статус заказа на основании статусов его позиций
+ *
+ * ее надо вызывать всегда, когда поменяли статус хоть одного Order_Item.STATUS
+ * ее вызываем сознательно вручную, после изменения всего DataSet,
+ * чтобы не было лишнего обносления данных
+ *
  */
 class CalculateNewOrderStatus
 {
@@ -44,13 +51,15 @@ class CalculateNewOrderStatus
                 if ( in_array($source[0]['oi_status'], $finished)) {
                     $ret = DbOrderStatus::OS_DONE;
                 }
-        } else
+        }
+        else {
             if ((count($source)==2)
                 &&(in_array($source[0]['oi_status'], $finished))
                 &&(in_array($source[1]['oi_status'], $finished)))
             {
                 $ret = DbOrderStatus::OS_DONE;
             }
+        }
         return $ret;
     }
 

@@ -55,10 +55,13 @@ class Invoice {
         return DbDealer::model()->findByPk($this->dealer);
     }
 
+    private function suffix() {
+        return "_".$this->dealer()->name.$this->number;
+    }
+
     public function storeToDb() {
         if ($this->details->count()) {
-            // ID нового номера заказа
-            $order_id = (new DbCreateNewOrder(new RuntimeUser(), $this->dealer()->name.$this->number))->id();
+            $order_id = (new DbCreateNewOrder(new RuntimeUser(), $this->suffix()))->id();
             foreach ($this->details as $item) {
                 $orderItem = new DbOrderItem();
                 $orderItem->fillWith([

@@ -261,17 +261,19 @@ class DbOrderItem extends CActiveRecord
 	}
 
     // =================================================================================================================
-	// это функция для вытаскивания набора конкретных данных
-    public function getXlDataItems()
-    {
-        return (new DbOrderItem())
+    public function getDatasetByCriteria($criteria) {
+	    return (new DbOrderItem())
             ->with('oiOrder')
             ->with('oiOrder.oCagent')
             ->with('oiShipMethod')
             ->with('oiDealer')
-            ->findAll(
-                (new DbOrderItemCriteria())->byType($this->ExportExcelBehavior->extraParam)
-            );
+            ->findAll($criteria);
+    }
+    // =================================================================================================================
+	// это функция для вытаскивания набора конкретных данных
+    public function getXlDataItems()
+    {
+        return $this->getDatasetByCriteria((new DbOrderItemCriteria())->byType($this->ExportExcelBehavior->extraParam));
     }
 
     // это генерация заголовка

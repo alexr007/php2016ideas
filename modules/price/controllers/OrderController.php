@@ -88,17 +88,30 @@ class OrderController extends PriceController {
 		]);
 	}
 
+
+
     public function actionExportExcelNewItems()
     {
-        (new DbOrderItem())->exportExcel([
+        $items = new DbOrderItem();
+        $items->exportExcel([
             'ownerGetDataFunction'=>'XlDataItems', //getXlDataItems
             'ownerHeaderFunction'=>'XlReportHeaderItems', //getXlReportHeaderItems
             'ownerRowDataFunction'=>'XlReportItemItems', // getXlReportItemItems
             'extraParam'=>DbOrderStatus::OS_CREATED,
         ]);
+        $list = new CList();
+        $orders = new CUniqueNonEmplyList();
+        foreach ($items->getDatasetByCriteria((new DbOrderItemCriteria())->byType(DbOrderStatus::OS_CREATED)) as $row) {
+            $list->add($row->oi_id);
+            $orders->add($row->oi_order);
+        }
+        $NEW=DbOrderItemStatus::OIS_ORDERED;
+        $keys=implode(',',$list->toArray());
+        Yii::app()->db->createCommand("UPDATE order_item set oi_status=$NEW WHERE oi_id in ($keys)")->execute();
+        foreach ($orders as $order) {
+            new CalculateNewOrderStatus($order);
+        }
     }
-
-
 
 	// concrete order view
 	public function actionView($id)
