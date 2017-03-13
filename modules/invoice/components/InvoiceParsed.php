@@ -5,16 +5,16 @@
  * Date: 07.03.2017
  * Time: 13:31
  */
-class InvoiceProcessed {
-    private $model;
+class InvoiceParsed {
+    private $origin;
 
-    public function __construct($data){
-        $this->model = $data;
+    public function __construct($source){
+        $this->origin = $source;
     }
 
-    private function process() {
-        $invoice = new Invoice();
-        foreach (explode("\n", $this->model->details) as $line) {
+    public function details() {
+        $invoice = new InvoiceList();
+        foreach (explode("\n", $this->origin) as $line) {
             $row = explode("\t", $line);
             if (count($row)==3) {
                 $invoice->add(new InvoiceLine(new InvPartNumber($row[0], $row[1]), $row[2]));
@@ -30,9 +30,5 @@ class InvoiceProcessed {
         new DumpExit($invoice->toString(),false);
         */
         return $invoice;
-    }
-
-    public function data() {
-        return $this->process()->toString();
     }
 }

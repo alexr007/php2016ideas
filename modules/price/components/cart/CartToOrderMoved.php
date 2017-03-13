@@ -24,7 +24,7 @@ class CartToOrderMoved {
 			$itemToCart = new DbOrderItem();
 			$itemToCart->fillWith([
 				'oi_order' => $this->order->id(), 
-				'oi_status' => DbOrderStatus::OS_CREATED, 
+				'oi_status' => DbOrderItemStatus::OIS_NEW,
 				'oi_ship_method' => $dbCartItem->ct_dtype, 
 				'oi_dealer' => $dbCartItem->ct_dealer, 
 				'oi_vendor' => $dbCartItem->ct_vendor, 

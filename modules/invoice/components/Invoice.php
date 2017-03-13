@@ -1,56 +1,89 @@
 <?php
-
 /**
  * Created by PhpStorm.
  * User: alexr
- * Date: 09.03.2017
- * Time: 23:34
+ * Date: 13.03.2017
+ * Time: 18:47
  */
-class Invoice
-{
-    private $list;
+class Invoice {
+    private $number;
+    private $dealer;
+    private $method;
+    private $date;
+    private $details;
+    private $id; // DB
 
-    public function __construct() {
-        $this->list = new JList();
+    /**
+     * @param $number
+     * @return DbInvoice instance
+     */
+    public static function findByNumber($number) {
+        return DbInvoice::model()->findByAttributes(['in_number'=>$number]);
     }
 
-    public function add(InvoiceLine $line) {
-        $index = $this->indexOf($line->pn());
-        if ($index === false) {
-            $this->list->add($line);
+    /**
+     * Invoice constructor.
+     * @param $number
+     * @param $dealer
+     * @param $method
+     * @param $date
+     * @param $details
+     */
+    public function __construct($number, $dealer, $method, $date, $details)
+    {
+        $this->number = (new NormalizedPartNumber($number))->get();
+        $this->dealer = $dealer;
+        $this->method = $method;
+        $this->date = $date;
+        $this->details = $details;
+        if (!($dbInvoice = self::findByNumber($this->number))) {
+            $dbInvoice = $this->save();
         }
-        else {
-            $this->list->itemAt($index)->incQty($line->qty());
-        }
+        $this->id = $dbInvoice->in_id;
     }
 
-    private function indexOf(InvPartNumber $item) {
-        $ret = false;
-        foreach ($this->list as $k=>$listItem) {
-            if ($listItem->pn()->equals($item)) {
-                $ret = $k;
-                break;
+    private function save() {
+        $dbInvoice = new DbInvoice();
+        $dbInvoice->in_dealer = $this->dealer;
+        $dbInvoice->in_number = $this->number;
+        $dbInvoice->in_date = $this->date;
+        $dbInvoice->save();
+        return $dbInvoice;
+    }
+
+    public function dealer() {
+        return DbDealer::model()->findByPk($this->dealer);
+    }
+
+    public function storeToDb() {
+        if ($this->details->count()) {
+            // ID нового номера заказа
+            $order_id = (new DbCreateNewOrder(new RuntimeUser(), $this->dealer()->name.$this->number))->id();
+            foreach ($this->details as $item) {
+                $orderItem = new DbOrderItem();
+                $orderItem->fillWith([
+                    'oi_order' => $order_id,
+                    'oi_status' => DbOrderItemStatus::OIS_DELIVERY,
+                    'oi_ship_method' => $this->method,
+                    'oi_dealer' => $this->dealer,
+                    'oi_vendor' => $item->pn()->vendor(),
+                    'oi_number' => $item->pn()->number(),
+                    'oi_qty' => $item->qty(),
+                    'oi_invoice' => $this->id,
+                ]);
+                $orderItem->save();
             }
         }
-        return $ret;
     }
 
-    public function contains(InvPartNumber $item) {
-        return $this->indexOf($item) !== false;
+    /**
+     * @return mixed
+     */
+    public function details()
+    {
+        return $this->details;
     }
 
-    public function remove(InvPartNumber $item) {
-        $index = $this->indexOf($item);
-        if ($index === false) {
-            return false;
-        }
-        else {
-            $this->list->removeAt($index);
-            return true;
-        }
-    }
 
-    public function toString() {
-        return $this->list->toString();
-    }
+
 }

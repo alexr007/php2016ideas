@@ -45,7 +45,6 @@
     </div>
     <div class="row">
         <?php
-
         echo $form->labelEx($model,'dealer');
         echo $form->dropDownList($model,'dealer',
             $dealers::listData(['show_all'=>false,'show_empty'=>true]),
@@ -58,6 +57,15 @@
         echo $form->labelEx($model,'invoice');
         echo $form->textField($model,'invoice');
         echo $form->error($model,'invoice');
+        ?>
+    </div>
+    <div class="row">
+        <?php
+        echo $form->labelEx($model,'method');
+        echo $form->dropDownList($model,'method',
+            $methods::listData(['show_all'=>false,'show_empty'=>true]),
+            ['style'=>'width:173px']);
+        echo $form->error($model,'method');
         ?>
     </div>
     <div class="row">

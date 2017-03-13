@@ -10,12 +10,13 @@ class FormInvoice extends CFormModel
     public $date;
     public $dealer;
     public $invoice;
+    public $method;
     public $details;
 
     public function rules()
     {
         return [
-            ['date, dealer, invoice, details', 'safe'],
+            ['date, dealer, invoice, method, details', 'safe'],
         ];
     }
 
@@ -25,6 +26,7 @@ class FormInvoice extends CFormModel
             'date' => 'Enter Date',
             'dealer' => 'Select Dealer',
             'invoice' => 'Enter Invoice Number',
+            'method' => 'Select Delivery Method',
             'details' => 'Paste Invoice Details'
         ];
     }

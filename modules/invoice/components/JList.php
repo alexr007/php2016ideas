@@ -66,4 +66,7 @@ class JList implements IteratorAggregate{
         return $this->list->itemAt($index);
     }
 
+    public function count() {
+        return $this->list->count();
+    }
 }
