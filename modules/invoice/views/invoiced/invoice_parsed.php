@@ -5,4 +5,4 @@
  * Date: 07.03.2017
  * Time: 13:31
  */
-new DumpExit($processed->toString());
+echo "Done";

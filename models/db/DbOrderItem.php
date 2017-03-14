@@ -24,6 +24,7 @@
  * @property string $oi_date_dealer_ship
  * @property string $oi_date_received
  * @property string $oi_date_shipped
+ * @property string $oiInvoice
  */
 class DbOrderItem extends CActiveRecord
 {
@@ -43,8 +44,8 @@ class DbOrderItem extends CActiveRecord
 		return [
 			['oi_order, oi_status, oi_ship_method, oi_dealer, oi_qty', 'numerical', 'integerOnly'=>true],
 			['oi_price, oi_weight, oi_volume', 'length', 'max'=>10],
-            ['oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe'],
-			['oi_id, oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped', 'safe', 'on'=>'search'],
+            ['oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped, oi_invoice', 'safe'],
+			['oi_id, oi_order, oi_status, oi_ship_method, oi_dealer, oi_vendor, oi_number, oi_desc_en, oi_desc_ru, oi_depot, oi_qty, oi_price, oi_weight, oi_volume, oi_comment_user, oi_comment_oper, oi_date_process, oi_date_dealer_ship, oi_date_received, oi_date_shipped, oi_invoice', 'safe', 'on'=>'search'],
         ];
 	}
 
@@ -58,6 +59,7 @@ class DbOrderItem extends CActiveRecord
 			'oiStatus' => [self::BELONGS_TO, 'DbOrderItemStatus', 'oi_status'],
 			'oiShipMethod' => [self::BELONGS_TO, 'DbDeliveryType', 'oi_ship_method'],
 			'oiDealer' => [self::BELONGS_TO, 'DbDealer', 'oi_dealer'],
+            'oiInvoice' => [self::BELONGS_TO, 'DbInvoice', 'oi_invoice'],
 		];
 	}
 
@@ -87,6 +89,7 @@ class DbOrderItem extends CActiveRecord
 			'oi_date_dealer_ship' => 'Date Dealer Ship',
 			'oi_date_received' => 'Date Received',
 			'oi_date_shipped' => 'Date Shipped',
+            'oi_invoice' => 'Invoice ID',
 		);
 	}
 
@@ -161,19 +164,25 @@ class DbOrderItem extends CActiveRecord
     
     public function fillWith($data)
 	{
-		if (!is_array($data))
-			throw new CException("fillWith must be use with array as Configuration!");
-		
-		$allowedFields = ['oi_order', 'oi_status', 'oi_ship_method', 'oi_dealer', 'oi_vendor', 'oi_number', 'oi_desc_en', 'oi_desc_ru', 
+		if (!is_array($data)) {
+            throw new CException("fillWith must be use with array as Configuration!");
+        }
+		$allowedFields = ['oi_order', 'oi_status', 'oi_ship_method', 'oi_dealer', 'oi_vendor', 'oi_number', 'oi_desc_en', 'oi_desc_ru',
 			'oi_depot', 'oi_qty', 'oi_price', 'oi_weight', 'oi_volume', 'oi_comment_user', 'oi_comment_oper', 
-			'oi_date_process', 'oi_date_dealer_ship', 'oi_date_received', 'oi_date_shipped', ];
-		
-		foreach ($data as $key=>$value)
-			if (in_array($key, $allowedFields))
-				$this->{$key} = $value;
-		
+			'oi_date_process', 'oi_date_dealer_ship', 'oi_date_received', 'oi_date_shipped', 'oi_invoice', ];
+		foreach ($data as $key=>$value) {
+            if (in_array($key, $allowedFields)) {
+                $this->{$key} = $value;
+            }
+        }
 		return $this;
 	}
+
+    public function getInvoiceS()
+    {
+        return $this->oiInvoice ? $this->oiInvoice->getNumber() : "";
+    }
+
 	
 	public function getDealerNameS()
 	{
@@ -262,12 +271,21 @@ class DbOrderItem extends CActiveRecord
 
     // =================================================================================================================
     public function getDatasetByCriteria($criteria) {
+	    $crit = new CDbCriteria();
+	    if (is_array($criteria)) {
+	        foreach ($criteria as $criteria1) {
+                $crit->mergeWith($criteria1);
+            }
+        }
+        else{
+	        $crit->mergeWith($criteria);
+        }
 	    return (new DbOrderItem())
             ->with('oiOrder')
             ->with('oiOrder.oCagent')
             ->with('oiShipMethod')
             ->with('oiDealer')
-            ->findAll($criteria);
+            ->findAll($crit);
     }
     // =================================================================================================================
 	// это функция для вытаскивания набора конкретных данных
@@ -314,17 +332,32 @@ class DbOrderItem extends CActiveRecord
     }
     // =================================================================================================================
 
-	public function split($count) {
+	/*
+	 * этот метод ВЫРЕЗАЕТ указанное количество позиций из строки
+	 * и делает новую такую-же строку с другим количеством
+	 * сумма количества позиций в имененной и новой строке
+	 * равно изначальному количесву,
+	 *
+	 * пример:
+	 * original.count = 12;
+	 * original.split(3);
+	 * =>
+	 * original.count = 3;
+	 * new.count = 9;
+	 */
+    public function split($count) {
         // $count - то - сколько надо выделить
-	    if ($count<$this->oi_qty) {
-            $className=__CLASS__;
-            $oi = new $className;
+	    if ($count < $this->oi_qty) {
+            $oi = new self();
             $oi->attributes = $this->attributes;
-            $oi->oi_qty = $count;
-            $this->oi_qty -= $count;
+            // new version
+            $oi->oi_qty = $this->oi_qty - $count;
+            $this->oi_qty = $count;
+            // old version
+            //$oi->oi_qty = $count;
+            //$this->oi_qty -= $count;
             $oi->save();
             $this->save();
         }
     }
-
 }

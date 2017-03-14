@@ -87,6 +87,45 @@ class Invoice {
         return $this->details;
     }
 
+    /**
+     * @return mixed
+     */
+    public function dealerId()
+    {
+        return $this->dealer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function method()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function number()
+    {
+        return $this->number;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function date()
+    {
+        return $this->date;
+    }
+
+    /**
+     * @return int
+     */
+    public function id()
+    {
+        return $this->id;
+    }
 
 
 }

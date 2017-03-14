@@ -6,7 +6,7 @@
  * Date: 07.03.2017
  * Time: 12:35
  */
-class InvoiceLine
+class InvoiceLine implements IInvoiceLine
 {
     private $pn;
     private $qty;

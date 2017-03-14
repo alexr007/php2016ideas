@@ -16,25 +16,31 @@ class InvoicedController extends InvoiceController
         }
         else {
             $model->attributes = $_POST['FormInvoice'];
-
-            // инвойс
-            $inv = new Invoice($model->invoice,
-                $model->dealer,
-                $model->method,
-                $model->date,
-                // обрабатываем содержимое инвойса
-                (new InvoiceParsed($model->details))->details()
+            // строки заказов, прочитанные из БД, прдлежащие обработке
+            $parts = new DbParts(
+                // инвойс отпарсеный из $_POST['FormInvoice'])
+                new Invoice($model->invoice,
+                    $model->dealer,
+                    $model->method,
+                    $model->date,
+                    // обрабатываем содержимое инвойса
+                    (new InvoiceParsed($model->details))->details()
+                )
             );
-
-            // todo 1. читаем db.orders в коллекцию
-            // todo 2. сравниваем $invoice И $db.orders
+            //echo "INITIAL ORDER<BR>";new DumpExit($parts->lines(), false);
+            //echo "INITIAL INVOICE<BR>";new DumpExit($parts->invoice()->details(), false);
+            // сравниваем ORDER vs INVOICE
+            $response = $parts->compareToInvoice();
+            //echo "NEW ORDER<BR>";new DumpExit($response->order(),false);
+            //echo "NEW INVOICE<BR>";new DumpExit($response->invoice()->details(),false);
             // todo 3. пишем $db.orders в БД
-
-            // сохраняем остаток коллекции $invoice
-            $inv->storeToDb();
+            // пройтись по $response->order() и обновить данные о инвойсе
+            (new OrderUpdateInvNumber($response->order()))->updateInvoiceNumber($parts->invoice()->id());
+            // все что осталось после анализа Invoice и DbParts (остаток коллекции $inv) сохраняем в БД отдельным заказом
+            $response->invoice()->storeToDb();
 
             $this->render('invoice_parsed',[
-                'processed' => $inv->details(),
+                'processed' => null,
             ]);
         }
 

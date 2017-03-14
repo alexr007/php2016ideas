@@ -115,4 +115,8 @@ class DbInvoice extends CActiveRecord
         return false;
     }
 
+    public function getNumber() {
+	    return $this->in_number;
+    }
+
 }

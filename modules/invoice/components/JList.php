@@ -8,6 +8,7 @@
  *
  * поиск элемента по массиву с помощи
  * функции equals элемента массива
+ *
  */
 class JList implements IteratorAggregate{
     private $list;

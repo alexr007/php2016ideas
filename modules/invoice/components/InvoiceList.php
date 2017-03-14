@@ -18,7 +18,7 @@ class InvoiceList implements IteratorAggregate
         return $this->list->getIterator();
     }
 
-    public function add(InvoiceLine $line) {
+    public function add(IInvoiceLine $line) {
         if (($index = $this->indexOf($line->pn())) === false) {
             $this->list->add($line);
         }
@@ -42,10 +42,6 @@ class InvoiceList implements IteratorAggregate
         return $ret;
     }
 
-    public function contains(InvPartNumber $item) {
-        return $this->indexOf($item) !== false;
-    }
-
     public function remove(InvPartNumber $item) {
         $index = $this->indexOf($item);
         if ($index === false) {
@@ -55,6 +51,14 @@ class InvoiceList implements IteratorAggregate
             $this->list->removeAt($index);
             return true;
         }
+    }
+
+    public function count() {
+        return $this->list->count();
+    }
+    /*
+    public function contains(InvPartNumber $item) {
+        return $this->indexOf($item) !== false;
     }
 
     public function toString() {
@@ -69,7 +73,5 @@ class InvoiceList implements IteratorAggregate
         return $cnt;
     }
 
-    public function count() {
-        return $this->list->count();
-    }
+    */
 }

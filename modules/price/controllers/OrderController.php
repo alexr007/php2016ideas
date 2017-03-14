@@ -88,11 +88,10 @@ class OrderController extends PriceController {
 		]);
 	}
 
-
-
     public function actionExportExcelNewItems()
     {
         $items = new DbOrderItem();
+        // экспортируем в excel
         $items->exportExcel([
             'ownerGetDataFunction'=>'XlDataItems', //getXlDataItems
             'ownerHeaderFunction'=>'XlReportHeaderItems', //getXlReportHeaderItems
@@ -105,9 +104,11 @@ class OrderController extends PriceController {
             $list->add($row->oi_id);
             $orders->add($row->oi_order);
         }
+        // обновляем статусы позиций (строк) заказов
         $NEW=DbOrderItemStatus::OIS_ORDERED;
         $keys=implode(',',$list->toArray());
         Yii::app()->db->createCommand("UPDATE order_item set oi_status=$NEW WHERE oi_id in ($keys)")->execute();
+        // обновляем статусы заказов
         foreach ($orders as $order) {
             new CalculateNewOrderStatus($order);
         }

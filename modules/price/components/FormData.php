@@ -39,10 +39,12 @@ class FormData implements IFormData {
 	
 	private function parseValue()
 	{
-		foreach (explode("\n", $this->getValue()) as $item)
-			if ($item)
-				$this->_list->add($item);
-			
+		foreach (explode("\n", $this->getValue()) as $item) {
+            if ($item) {
+                $this->_list->add($item);
+            }
+        }
+
 		$this->_processed = true;
 	}
 	

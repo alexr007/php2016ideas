@@ -62,7 +62,8 @@ class DbPartPrice extends CActiveRecord
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
-            'pagination'=>['pageSize'=>22],
+            'pagination'=>false,
+            //'pagination'=>['pageSize'=>22],
 		));
 	}
 	

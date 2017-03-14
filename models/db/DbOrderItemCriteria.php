@@ -11,8 +11,8 @@ class DbOrderItemCriteria extends AbstractAddCriteria {
 		$criteria->compare('oi_status',$object->oi_status);
 		$criteria->compare('oi_ship_method',$object->oi_ship_method);
 		$criteria->compare('oi_dealer',$object->oi_dealer);
-		$criteria->compare('oi_vendor',$object->oi_vendor,true);
-		$criteria->compare('oi_number',$object->oi_number,true);
+		$criteria->compare('upper(oi_vendor)',mb_strtoupper($object->oi_vendor),true);
+		$criteria->compare('upper(oi_number)',mb_strtoupper($object->oi_number),true);
 		$criteria->compare('oi_desc_en',$object->oi_desc_en,true);
 		$criteria->compare('oi_desc_ru',$object->oi_desc_ru,true);
 		$criteria->compare('oi_depot',$object->oi_depot,true);
@@ -26,6 +26,7 @@ class DbOrderItemCriteria extends AbstractAddCriteria {
 		$criteria->compare('oi_date_dealer_ship',$object->oi_date_dealer_ship,true);
 		$criteria->compare('oi_date_received',$object->oi_date_received,true);
 		$criteria->compare('oi_date_shipped',$object->oi_date_shipped,true);
+        $criteria->compare('oi_invoice',$object->oi_invoice);
 
 		$criteria->mergeWith($this->criteria);
 		return $criteria;
@@ -35,27 +36,60 @@ class DbOrderItemCriteria extends AbstractAddCriteria {
 	{
 		$criteria=new CDbCriteria();
 		$criteria->compare('oi_order', (int)$id);
-		
 		$criteria->mergeWith($this->criteria);
 		return $criteria;
 	}
-	
-	public function byCagent($user)
+
+    public function byMethod($id)
+    {
+        $criteria=new CDbCriteria();
+        $criteria->compare('oi_ship_method', (int)$id);
+        $criteria->mergeWith($this->criteria);
+        return $criteria;
+    }
+
+    public function byDealer($id)
+    {
+        $criteria=new CDbCriteria();
+        $criteria->compare('oi_dealer', (int)$id);
+        $criteria->mergeWith($this->criteria);
+        return $criteria;
+    }
+
+    public function byCagent($user)
 	{
 		$criteria=new CDbCriteria();
 		$criteria->join ='JOIN orders ON (o_id=oi_order)';
 		$criteria->compare('o_cagent', $user->cagentId());
-
 		$criteria->mergeWith($this->criteria);
 		return $criteria;
 	}
 
-    public function byType($type)
+    public function byItemStatus($status = [])
+    {
+        $criteria=new CDbCriteria();
+        if (is_array($status)) {
+            $criteria->addInCondition('oi_status', $status);
+        }
+        $criteria->mergeWith($this->criteria);
+        return $criteria;
+    }
+
+    // фильтр по статусу Order НЕ orderItem !
+	public function byType($type)
     {
         $criteria=new CDbCriteria();
         $criteria->join ='JOIN orders ON (o_id=oi_order)';
         $criteria->compare('orders.o_status', $type);
+        $criteria->mergeWith($this->criteria);
+        return $criteria;
+    }
 
+    public function orderByDate()
+    {
+        $criteria=new CDbCriteria();
+        $criteria->join ='JOIN orders ON (o_id=oi_order)';
+        $criteria->order='orders.o_date_in ASC';
         $criteria->mergeWith($this->criteria);
         return $criteria;
     }
