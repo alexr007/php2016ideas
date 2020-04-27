@@ -1,0 +1,8 @@
+#edit access
+vim /var/lib/pgsql/9.5/data/pg_hba.conf
+
+#look for running instances
+ps ax | grep postgres
+
+#restart
+service postgresql-9.5 restart

@@ -1,0 +1,18 @@
+#show
+sudo iptables -S
+sudo iptables -L
+sudo iptables -L --line-numbers
+
+#save
+iptables-save > curr.ipt
+
+#edit
+vim curr.ipt
+
+#load
+iptables-restore < curr.ipt
+
+#autoreload after reboot
+iptables-save >/etc/sysconfig/iptables
+
+
